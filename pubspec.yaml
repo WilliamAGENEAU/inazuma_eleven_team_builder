@@ -1,0 +1,36 @@
+name: inazuma_eleven_team_builder
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0-100.2.beta
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+  fluttericon: ^2.0.0
+  font_awesome_flutter: ^10.9.1
+  google_fonts: ^6.3.0
+  layout: ^1.0.5
+  shrink_sidemenu: ^2.0.0+2-null-safety
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app-icon.png"
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/images/
+    
