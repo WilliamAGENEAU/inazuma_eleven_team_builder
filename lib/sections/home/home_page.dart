@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/models/joueur.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
@@ -23,30 +22,19 @@ class _HomePageState extends State<HomePage> {
   bool isOpened = false;
   String selectedFormation = "4-3-3";
 
-  // ✅ Déclarer ici pour qu'ils soient persistants
   List<Joueur?> hexPlayers = List.filled(11, null);
   List<Joueur?> remplacants = List.filled(5, null);
 
   final List<String> formations = ["4-3-3", "4-4-2", "3-5-2", "5-3-2"];
-  Future<String> getPlayerImageUrl(String playerPath) async {
-    // playerPath = "players/raimon/gouenji.png"
-    final ref = FirebaseStorage.instance.ref(playerPath);
-    String url = await ref.getDownloadURL();
-    return url;
-  }
 
-  /// Positions de joueurs sur le terrain (normalisées entre 0 et 1)
+  /// Positions sur le terrain
   final Map<String, List<Offset>> formationPositions = {
     "4-3-3": [
       Offset(0.5, 0.9), // Gardien
-      Offset(0.2, 0.8),
-      Offset(0.4, 0.8),
-      Offset(0.6, 0.8),
-      Offset(0.8, 0.8), // Défense
+      Offset(0.2, 0.8), Offset(0.4, 0.8),
+      Offset(0.6, 0.8), Offset(0.8, 0.8), // Défense
       Offset(0.2, 0.6), Offset(0.5, 0.6), Offset(0.8, 0.6), // Milieu
-      Offset(0.2, 0.4),
-      Offset(0.5, 0.4),
-      Offset(0.8, 0.4), // Attaque 👈 pointe descendue
+      Offset(0.2, 0.4), Offset(0.5, 0.4), Offset(0.8, 0.4), // Attaque
     ],
     "4-4-2": [
       Offset(0.5, 0.9),
@@ -95,11 +83,7 @@ class _HomePageState extends State<HomePage> {
 
     void toggleMenu() {
       final state = sideMenuKey.currentState!;
-      if (state.isOpened) {
-        state.closeSideMenu();
-      } else {
-        state.openSideMenu();
-      }
+      state.isOpened ? state.closeSideMenu() : state.openSideMenu();
     }
 
     return SideMenu(
@@ -110,114 +94,130 @@ class _HomePageState extends State<HomePage> {
         context,
         closeMenu: () => sideMenuKey.currentState?.closeSideMenu(),
       ),
-      child: IgnorePointer(
-        ignoring: isOpened,
-        child: Scaffold(
-          backgroundColor: Colors.black,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                /// Fond du terrain
-                Positioned.fill(
-                  child: Image.asset(
-                    ImagePath.FIELD,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              /// Fond terrain
+              Positioned.fill(
+                child: Image.asset(ImagePath.FIELD, fit: BoxFit.cover),
+              ),
+
+              /// Joueurs titulaires
+              ...formationPositions[selectedFormation]!.asMap().entries.map((
+                entry,
+              ) {
+                final index = entry.key;
+                final pos = entry.value;
+                return AnimatedPositioned(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  left: MediaQuery.of(context).size.width * pos.dx - 30,
+                  top: MediaQuery.of(context).size.height * pos.dy - 120,
+                  child: HexButton(
+                    joueur: hexPlayers[index],
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => PlayerSelectorBottomSheet(
+                          onPlayerSelected: (joueur) {
+                            setState(() => hexPlayers[index] = joueur);
+                          },
+                        ),
+                      );
+                    },
                   ),
-                ),
+                );
+              }),
 
-                ...formationPositions[selectedFormation]!.asMap().entries.map((
-                  entry,
-                ) {
-                  final index = entry.key;
-                  final pos = entry.value;
-                  return Positioned(
-                    left: MediaQuery.of(context).size.width * pos.dx - 20,
-                    top: MediaQuery.of(context).size.height * pos.dy - 115,
-                    child: HexButton(
-                      joueur: hexPlayers[index],
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (_) => PlayerSelectorBottomSheet(
-                            onPlayerSelected: (joueur) {
-                              setState(() {
-                                hexPlayers[index] =
-                                    joueur; // ✅ Mise à jour conservée
-                              });
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }),
-
-                // ✅ Les remplaçants restent aussi
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 80,
-                    color: Colors.black.withOpacity(0.7),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: remplacants.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: HexButton(
-                            joueur: remplacants[index],
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (_) => PlayerSelectorBottomSheet(
-                                  onPlayerSelected: (joueur) {
-                                    setState(() {
-                                      remplacants[index] =
-                                          joueur; // ✅ Persistance
-                                    });
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
+              /// Remplaçants
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: 90,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.8),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(18),
                     ),
                   ),
-                ),
-
-                /// AppBar/Menu
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: AppBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    leading: IconButton(
-                      icon: Icon(Icons.menu, color: AppColors.white),
-                      onPressed: () => toggleMenu(),
-                    ),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: remplacants.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: HexButton(
+                          joueur: remplacants[index],
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => PlayerSelectorBottomSheet(
+                                onPlayerSelected: (joueur) {
+                                  setState(() => remplacants[index] = joueur);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ),
+              ),
 
-                /// Dropdown sous l’AppBar, aligné à droite
-                Positioned(
-                  top: kToolbarHeight, // 👈 juste sous l’AppBar
-                  right: 12,
+              /// AppBar/Menu
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  leading: IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white),
+                    onPressed: () => toggleMenu(),
+                  ),
+                ),
+              ),
+
+              /// Dropdown formation stylisé
+              Positioned(
+                top: kToolbarHeight + 8,
+                right: 16,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   child: FormationDropdown(
                     formations: formations,
                     selectedFormation: selectedFormation,
                     onChanged: (value) {
-                      setState(() {
-                        selectedFormation = value!;
-                      });
+                      setState(() => selectedFormation = value!);
                     },
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

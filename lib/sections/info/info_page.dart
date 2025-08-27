@@ -21,7 +21,7 @@ class _InfoPageState extends State<InfoPage> {
       key: sideMenuKey,
       background: AppColors.black,
       type: SideMenuType.shrinkNSlide,
-      child: Container(color: AppColors.aeriumV2NavTitle),
+      child: Container(color: AppColors.blueSky),
       menu: MenuAside(
         context,
         closeMenu: () => sideMenuKey.currentState?.closeSideMenu(),

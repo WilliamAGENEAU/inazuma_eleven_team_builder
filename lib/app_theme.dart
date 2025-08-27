@@ -1,144 +1,80 @@
-// ignore_for_file: deprecated_member_use
-
+// app_theme.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'values/values.dart';
 
 class AppTheme {
-  static const _lightFillColor = Colors.black;
-
-  static final Color _lightFocusColor = Colors.black.withOpacity(0.12);
-
-  static ThemeData lightThemeData = themeData(
-    lightColorScheme,
-    _lightFocusColor,
-  );
-
-  static ThemeData themeData(ColorScheme colorScheme, Color focusColor) {
-    return ThemeData(
-      colorScheme: colorScheme,
-      textTheme: _textTheme,
-      iconTheme: IconThemeData(color: AppColors.white),
-      canvasColor: colorScheme.background,
-      appBarTheme: AppBarTheme(color: AppColors.primaryColor),
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: AppColors.black,
-        selectionColor: AppColors.textSelectionColor,
-        selectionHandleColor: AppColors.primaryColor,
+  static ThemeData lightTheme = ThemeData(
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.blueSky,
+      secondary: AppColors.greenEnergy,
+      surface: AppColors.surface,
+      error: AppColors.errorRed,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+    ),
+    textTheme: _textTheme,
+    scaffoldBackgroundColor: AppColors.background,
+    appBarTheme: AppBarTheme(
+      elevation: 0,
+      backgroundColor: AppColors.blueSky,
+      titleTextStyle: GoogleFonts.orbitron(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
       ),
-      scaffoldBackgroundColor: colorScheme.background,
-      highlightColor: Colors.transparent,
-
-      // accentColor: colorScheme.primary,
-      focusColor: AppColors.primaryColor,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-    );
-  }
-
-  static const ColorScheme lightColorScheme = ColorScheme(
-    primary: AppColors.primaryColor,
-    primaryContainer: AppColors.primaryContainer,
-    // primaryVariant: AppColors.primaryColor,
-    secondary: AppColors.secondaryColor,
-    secondaryContainer: AppColors.black,
-    // secondaryVariant: AppColors.black,
-    background: AppColors.background,
-    surface: AppColors.surface,
-    onBackground: Colors.black,
-    error: _lightFillColor,
-    onError: _lightFillColor,
-    onPrimary: _lightFillColor,
-    onSecondary: Color(0xFF322942),
-    onSurface: Color(0xFF241E30),
-    brightness: Brightness.light,
+      iconTheme: const IconThemeData(color: Colors.white),
+    ),
+    buttonTheme: ButtonThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      buttonColor: AppColors.yellowEnergy,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.yellowEnergy,
+        foregroundColor: Colors.black,
+        textStyle: GoogleFonts.rajdhani(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    ),
   );
-
-  static const _bold = FontWeight.w700;
-  static const _semiBold = FontWeight.w600;
-  static const _medium = FontWeight.w500;
-  static const _regular = FontWeight.w400;
-  static const _light = FontWeight.w300;
 
   static final TextTheme _textTheme = TextTheme(
-    displayLarge: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_96,
+    displayLarge: GoogleFonts.orbitron(
+      fontSize: 48,
+      fontWeight: FontWeight.w900,
+      color: AppColors.blueSky,
+    ),
+    displayMedium: GoogleFonts.orbitron(
+      fontSize: 32,
+      fontWeight: FontWeight.bold,
+      color: AppColors.blueSky,
+    ),
+    headlineMedium: GoogleFonts.rajdhani(
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+      color: AppColors.greenEnergy,
+    ),
+    bodyLarge: GoogleFonts.rajdhani(
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
       color: AppColors.black,
-      fontWeight: _bold,
-      fontStyle: FontStyle.normal,
     ),
-    displayMedium: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_60,
-      color: AppColors.black,
-      fontWeight: _bold,
-      fontStyle: FontStyle.normal,
+    bodyMedium: GoogleFonts.rajdhani(
+      fontSize: 16,
+      fontWeight: FontWeight.normal,
+      color: AppColors.grey700,
     ),
-    displaySmall: GoogleFonts.roboto(
-      fontSize: Sizes.TEXT_SIZE_48,
-      color: AppColors.black,
-      fontWeight: _bold,
-      fontStyle: FontStyle.normal,
-    ),
-    headlineMedium: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_34,
-      color: AppColors.black,
-      fontWeight: _bold,
-      fontStyle: FontStyle.normal,
-    ),
-    headlineSmall: GoogleFonts.roboto(
-      fontSize: Sizes.TEXT_SIZE_24,
-      color: AppColors.black,
-      fontWeight: _bold,
-      fontStyle: FontStyle.normal,
-    ),
-    titleLarge: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_20,
-      color: AppColors.black,
-      fontWeight: _bold,
-      fontStyle: FontStyle.normal,
-    ),
-    titleMedium: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_16,
-      color: AppColors.secondaryColor,
-      fontWeight: _semiBold,
-      fontStyle: FontStyle.normal,
-    ),
-    titleSmall: GoogleFonts.roboto(
-      fontSize: Sizes.TEXT_SIZE_14,
-      color: AppColors.secondaryColor,
-      fontWeight: _semiBold,
-      fontStyle: FontStyle.normal,
-    ),
-    bodyLarge: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_16,
-      color: AppColors.secondaryColor,
-      fontWeight: _light,
-      fontStyle: FontStyle.normal,
-    ),
-    bodyMedium: GoogleFonts.roboto(
-      fontSize: Sizes.TEXT_SIZE_14,
-      color: AppColors.secondaryColor,
-      fontWeight: _light,
-      fontStyle: FontStyle.normal,
-    ),
-    labelLarge: GoogleFonts.roboto(
-      fontSize: Sizes.TEXT_SIZE_14,
-      color: AppColors.secondaryColor,
-      fontStyle: FontStyle.normal,
-      fontWeight: _medium,
-    ),
-    bodySmall: TextStyle(
-      fontFamily: StringConst.VISUELT_PRO,
-      fontSize: Sizes.TEXT_SIZE_12,
-      color: AppColors.white,
-      fontWeight: _regular,
-      fontStyle: FontStyle.normal,
+    labelLarge: GoogleFonts.bungee(
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+      color: AppColors.yellowEnergy,
     ),
   );
 }

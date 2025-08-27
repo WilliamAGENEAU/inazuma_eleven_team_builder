@@ -12,18 +12,19 @@ class HexButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap ?? () {},
-      child: ClipPath(
-        clipper: HexagonClipper(),
-        child: Container(
-          width: 60,
-          height: 60,
-          color: Colors.grey[800],
-          child: joueur == null
-              ? const Icon(Icons.add, color: Colors.white)
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(joueur!.icon, fit: BoxFit.cover),
-                ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        width: 70,
+        height: 70,
+        child: ClipPath(
+          clipper: HexagonClipper(),
+          child: Container(
+            color: Colors.grey[850],
+            child: joueur == null
+                ? const Icon(Icons.add, color: Colors.white, size: 28)
+                : Image.asset(joueur!.icon, fit: BoxFit.cover),
+          ),
         ),
       ),
     );

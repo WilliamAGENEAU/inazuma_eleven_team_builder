@@ -33,9 +33,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
 
   void _loadSagas() async {
     final data = await _firebaseService.getSagas();
-    setState(() {
-      sagas = data;
-    });
+    setState(() => sagas = data);
   }
 
   void _loadEquipes(Saga saga) async {
@@ -58,47 +56,82 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 400,
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: const BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Padding(padding: const EdgeInsets.all(12), child: _buildContent()),
+      child: Padding(padding: const EdgeInsets.all(16), child: _buildContent()),
     );
   }
 
   Widget _buildContent() {
     if (selectedSaga == null) {
-      // Étape 1 : choisir la saga
-      return ListView.builder(
+      /// Étape 1 : choisir la saga
+      return GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+        ),
         itemCount: sagas.length,
         itemBuilder: (context, index) {
           final saga = sagas[index];
-          return ListTile(
-            title: Text(saga.name, style: const TextStyle(color: Colors.white)),
+          return GestureDetector(
             onTap: () => _loadEquipes(saga),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[800],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                saga.name,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
           );
         },
       );
     } else if (selectedEquipe == null) {
-      // Étape 2 : choisir l'équipe
-      return ListView.builder(
+      /// Étape 2 : choisir l’équipe
+      return GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+        ),
         itemCount: equipes.length,
         itemBuilder: (context, index) {
           final equipe = equipes[index];
-          return ListTile(
-            leading: Image.asset(equipe.image, width: 40, height: 40),
-            title: Text(
-              equipe.name,
-              style: const TextStyle(color: Colors.white),
-            ),
+          return GestureDetector(
             onTap: () => _loadJoueurs(equipe),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ClipPath(
+                    clipper: HexagonClipper(),
+                    child: Container(
+                      color: Colors.grey[700],
+                      child: Image.asset(equipe.image, fit: BoxFit.contain),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  equipe.name,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ],
+            ),
           );
         },
       );
     } else {
-      // Étape 3 : choisir le joueur
+      /// Étape 3 : choisir le joueur
       return GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
@@ -117,10 +150,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
               clipper: HexagonClipper(),
               child: Container(
                 color: Colors.grey[800],
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(joueur.icon, fit: BoxFit.cover),
-                ),
+                child: Image.asset(joueur.icon, fit: BoxFit.cover),
               ),
             ),
           );

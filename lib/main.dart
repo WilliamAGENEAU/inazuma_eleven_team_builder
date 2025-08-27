@@ -28,7 +28,7 @@ class MainApp extends StatelessWidget {
     return Layout(
       child: MaterialApp(
         title: StringConst.APP_TITLE,
-        theme: AppTheme.lightThemeData,
+        theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         initialRoute: HomePage.homePageRoute,
         onGenerateRoute: RouteConfiguration.onGenerateRoute,
