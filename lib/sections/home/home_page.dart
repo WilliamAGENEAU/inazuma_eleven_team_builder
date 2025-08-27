@@ -31,10 +31,10 @@ class _HomePageState extends State<HomePage> {
   final Map<String, List<Offset>> formationPositions = {
     "4-3-3": [
       Offset(0.5, 0.9), // Gardien
-      Offset(0.2, 0.8), Offset(0.4, 0.8),
-      Offset(0.6, 0.8), Offset(0.8, 0.8), // Défense
+      Offset(0.2, 0.75), Offset(0.4, 0.75),
+      Offset(0.6, 0.75), Offset(0.8, 0.75), // Défense
       Offset(0.2, 0.6), Offset(0.5, 0.6), Offset(0.8, 0.6), // Milieu
-      Offset(0.2, 0.4), Offset(0.5, 0.4), Offset(0.8, 0.4), // Attaque
+      Offset(0.2, 0.45), Offset(0.5, 0.45), Offset(0.8, 0.45), // Attaque
     ],
     "4-4-2": [
       Offset(0.5, 0.9),
