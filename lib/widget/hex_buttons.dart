@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/widget/hexagon_clipper.dart';
+import '../models/joueur.dart';
 
 class HexButton extends StatelessWidget {
+  final Joueur? joueur;
   final VoidCallback? onTap;
 
-  const HexButton({super.key, this.onTap});
+  const HexButton({super.key, this.joueur, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +15,15 @@ class HexButton extends StatelessWidget {
       child: ClipPath(
         clipper: HexagonClipper(),
         child: Container(
-          width: 50,
-          height: 50,
-          color: Colors.grey,
-          child: const Icon(Icons.add, color: Colors.white),
+          width: 60,
+          height: 60,
+          color: Colors.grey[800],
+          child: joueur == null
+              ? const Icon(Icons.add, color: Colors.white)
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(joueur!.icon, fit: BoxFit.cover),
+                ),
         ),
       ),
     );

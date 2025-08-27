@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "28930603241",
+    "project_id": "inazuma-eleven-team-builder",
+    "storage_bucket": "inazuma-eleven-team-builder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28930603241:android:ae05a3f4debb7238809878",
+        "android_client_info": {
+          "package_name": "com.example.inazuma_eleven_team_builder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTcIV9vTRwVZMzKnt1ATtaGpmHHXKMrfY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,8 +1,13 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:inazuma_eleven_team_builder/models/joueur.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
 import 'package:inazuma_eleven_team_builder/widget/formation_dropdown.dart';
 import 'package:inazuma_eleven_team_builder/widget/hex_buttons.dart';
 import 'package:inazuma_eleven_team_builder/widget/menu_aside.dart';
+import 'package:inazuma_eleven_team_builder/widget/player_selector_bottom_sheet.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +23,17 @@ class _HomePageState extends State<HomePage> {
   bool isOpened = false;
   String selectedFormation = "4-3-3";
 
+  // ✅ Déclarer ici pour qu'ils soient persistants
+  List<Joueur?> hexPlayers = List.filled(11, null);
+  List<Joueur?> remplacants = List.filled(5, null);
+
   final List<String> formations = ["4-3-3", "4-4-2", "3-5-2", "5-3-2"];
+  Future<String> getPlayerImageUrl(String playerPath) async {
+    // playerPath = "players/raimon/gouenji.png"
+    final ref = FirebaseStorage.instance.ref(playerPath);
+    String url = await ref.getDownloadURL();
+    return url;
+  }
 
   /// Positions de joueurs sur le terrain (normalisées entre 0 et 1)
   final Map<String, List<Offset>> formationPositions = {
@@ -104,49 +119,70 @@ class _HomePageState extends State<HomePage> {
               children: [
                 /// Fond du terrain
                 Positioned.fill(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 120,
-                    ), // 👈 laisse la place pour le gardien + remplaçants
-                    child: Image.asset(
-                      ImagePath.FIELD,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
+                  child: Image.asset(
+                    ImagePath.FIELD,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                  ),
+                ),
+
+                ...formationPositions[selectedFormation]!.asMap().entries.map((
+                  entry,
+                ) {
+                  final index = entry.key;
+                  final pos = entry.value;
+                  return Positioned(
+                    left: MediaQuery.of(context).size.width * pos.dx - 20,
+                    top: MediaQuery.of(context).size.height * pos.dy - 115,
+                    child: HexButton(
+                      joueur: hexPlayers[index],
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (_) => PlayerSelectorBottomSheet(
+                            onPlayerSelected: (joueur) {
+                              setState(() {
+                                hexPlayers[index] =
+                                    joueur; // ✅ Mise à jour conservée
+                              });
+                            },
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                ),
+                  );
+                }),
 
-                /// Boutons joueurs (avec ajustement des positions)
-                ...formationPositions[selectedFormation]!.map(
-                  (pos) => Positioned(
-                    left: MediaQuery.of(context).size.width * pos.dx - 35,
-                    top:
-                        MediaQuery.of(context).size.height * (pos.dy * 0.85) -
-                        35, // 👈 descend un peu les joueurs
-                    child: SizedBox(width: 70, height: 70, child: HexButton()),
-                  ),
-                ),
-
-                /// Zone des remplaçants
+                // ✅ Les remplaçants restent aussi
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    height: 120,
+                    height: 80,
                     color: Colors.black.withOpacity(0.7),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment
-                          .spaceEvenly, // 👈 espace égal entre remplaçants
-                      children: List.generate(5, (index) {
-                        return SizedBox(
-                          width: 70,
-                          height: 70,
-                          child: HexButton(),
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: remplacants.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: HexButton(
+                            joueur: remplacants[index],
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (_) => PlayerSelectorBottomSheet(
+                                  onPlayerSelected: (joueur) {
+                                    setState(() {
+                                      remplacants[index] =
+                                          joueur; // ✅ Persistance
+                                    });
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                         );
-                      }),
+                      },
                     ),
                   ),
                 ),
