@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:inazuma_eleven_team_builder/values/values.dart';
 import 'package:inazuma_eleven_team_builder/widget/hexagon_clipper.dart';
 import '../models/joueur.dart';
 
@@ -21,7 +20,7 @@ class HexButton extends StatelessWidget {
         child: ClipPath(
           clipper: HexagonClipper(),
           child: Container(
-            color: AppColors.grey300,
+            color: Colors.grey.shade800,
             child: joueur == null
                 ? const Icon(Icons.add, color: Colors.white, size: 28)
                 : Image.asset(joueur!.icon, fit: BoxFit.cover),

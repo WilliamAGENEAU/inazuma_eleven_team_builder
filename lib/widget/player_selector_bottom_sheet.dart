@@ -73,7 +73,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
       /// Étape 1 : choisir la saga
       return GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+          crossAxisCount: 3,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
         ),
@@ -88,10 +88,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
-              child: Text(
-                saga.name,
-                style: const TextStyle(color: Colors.white),
-              ),
+              child: Image.asset(saga.image, fit: BoxFit.contain),
             ),
           );
         },
