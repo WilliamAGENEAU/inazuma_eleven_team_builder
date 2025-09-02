@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/sections/home/home_page.dart';
-import 'package:inazuma_eleven_team_builder/sections/info/info_page.dart';
+import 'package:inazuma_eleven_team_builder/sections/info/player_encyclopedia_page.dart';
 
 typedef PathWidgetBuilder =
     Widget Function(BuildContext, String? /*Map<String, String>*/);
@@ -32,7 +32,10 @@ class RouteConfiguration {
   /// take priority.
   static List<Path> paths = [
     Path(r'^' + HomePage.homePageRoute, (context, matches) => HomePage()),
-    Path(r'^' + InfoPage.infoPageRoute, (context, matches) => const InfoPage()),
+    Path(
+      r'^' + PlayerEncyclopediaPage.infoPageRoute,
+      (context, matches) => const PlayerEncyclopediaPage(),
+    ),
   ];
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
