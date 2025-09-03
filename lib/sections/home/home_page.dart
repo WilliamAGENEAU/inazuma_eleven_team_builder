@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/models/joueur.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
-import 'package:inazuma_eleven_team_builder/widget/formation_dropdown.dart';
+import 'package:inazuma_eleven_team_builder/widget/club_selector_bottom_sheet.dart';
+import 'package:inazuma_eleven_team_builder/widget/coach_selector_bottom_sheet.dart';
 import 'package:inazuma_eleven_team_builder/widget/hex_buttons.dart';
+import 'package:inazuma_eleven_team_builder/widget/maillot_selector_bottom_sheet.dart';
 import 'package:inazuma_eleven_team_builder/widget/menu_aside.dart';
 import 'package:inazuma_eleven_team_builder/widget/player_selector_bottom_sheet.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
@@ -21,7 +23,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isOpened = false;
   String selectedFormation = "4-3-3";
-
+  String? selectedEcusson;
+  String? selectedCoach;
+  String? selectedMaillot;
   List<Joueur?> hexPlayers = List.filled(11, null);
   List<Joueur?> remplacants = List.filled(5, null);
 
@@ -69,6 +73,44 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
+    void openCoachSelector() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => CoachSelectorBottomSheet(
+          onCoachSelected: (coach) {
+            setState(() => selectedCoach = coach);
+          },
+        ),
+      );
+    }
+
+    void openMaillotSelector() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => MaillotSelectorBottomSheet(
+          onMaillotSelected: (maillot) {
+            setState(() => selectedMaillot = maillot);
+          },
+        ),
+      );
+    }
+
+    void openClubSelector() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => ClubSelectorBottomSheet(
+          onEcussonSelected: (club) {
+            setState(() => selectedEcusson = club);
+          },
+        ),
+      );
+    }
 
     void toggleMenu() {
       final state = sideMenuKey.currentState!;
@@ -222,99 +264,136 @@ class _HomePageState extends State<HomePage> {
                 left: 12,
                 right: 12,
                 child: Container(
+                  width: double.infinity, // 🔥 prend toute la largeur
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue, Colors.greenAccent, Colors.yellow],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: gradient,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    vertical: 16,
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      /// Formation
+                      // Dropdown Formation
                       Expanded(
-                        flex: 2,
-                        child: FormationDropdown(
-                          formations: formations,
-                          selectedFormation: selectedFormation,
-                          onChanged: (value) {
-                            setState(() => selectedFormation = value!);
-                          },
+                        child: DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                          value: selectedFormation,
+                          items: formations
+                              .map(
+                                (f) => DropdownMenuItem(
+                                  value: f,
+                                  child: Text(
+                                    f,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) =>
+                              setState(() => selectedFormation = value!),
                         ),
                       ),
                       const SizedBox(width: 8),
 
-                      /// Coach
+                      // Coach
                       Expanded(
-                        flex: 2,
                         child: GestureDetector(
-                          onTap: () {
-                            // 👉 plus tard : ouvrir sélecteur de coach
-                          },
+                          onTap: openCoachSelector,
                           child: Container(
-                            height: 50,
-                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white.withOpacity(0.9),
+                              border: Border.all(color: Colors.black12),
                             ),
-                            child: const Text(
-                              "Coach",
-                              style: TextStyle(color: Colors.white),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  size: 28,
+                                  color: Colors.black87,
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
 
-                      /// Écusson club
+                      // Maillot
                       Expanded(
-                        flex: 1,
                         child: GestureDetector(
-                          onTap: () {
-                            // 👉 plus tard : ouvrir sélecteur d’écusson
-                          },
+                          onTap: openMaillotSelector,
                           child: Container(
-                            height: 50,
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white.withOpacity(0.9),
+                              border: Border.all(color: Colors.black12),
                             ),
-                            alignment: Alignment.center,
-                            child: const Icon(
-                              Icons.shield,
-                              color: Colors.white,
+                            child: Column(
+                              children: [
+                                if (selectedMaillot != null &&
+                                    selectedMaillot!.isNotEmpty)
+                                  Image.asset(
+                                    selectedMaillot!,
+                                    height: 36,
+                                    fit: BoxFit.contain,
+                                  )
+                                else
+                                  const Icon(
+                                    Icons.checkroom,
+                                    size: 28,
+                                    color: Colors.black87,
+                                  ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
 
-                      /// Maillot
+                      // Écusson
                       Expanded(
-                        flex: 2,
                         child: GestureDetector(
-                          onTap: () {
-                            // 👉 plus tard : ouvrir sélecteur maillot
-                          },
+                          onTap: openClubSelector,
                           child: Container(
-                            height: 50,
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white.withOpacity(0.9),
+                              border: Border.all(color: Colors.black12),
                             ),
-                            alignment: Alignment.center,
-                            child: const Text(
-                              "Maillot",
-                              style: TextStyle(color: Colors.white),
+                            child: Column(
+                              children: [
+                                if (selectedEcusson != null &&
+                                    selectedEcusson!.isNotEmpty)
+                                  Image.asset(
+                                    selectedEcusson!,
+                                    height: 36,
+                                    fit: BoxFit.contain,
+                                  )
+                                else
+                                  const Icon(
+                                    Icons.shield,
+                                    size: 28,
+                                    color: Colors.black87,
+                                  ),
+                              ],
                             ),
                           ),
                         ),

@@ -34,9 +34,7 @@ class FirebaseService {
         .collection('joueurs')
         .get();
     return snapshot.docs
-        .map(
-          (d) => Joueur.fromFirestore(d.data(), d.id),
-        ) // <-- fromMap utilise storagePath
+        .map((d) => Joueur.fromFirestore(d.data(), d.id))
         .toList();
   }
 
@@ -68,5 +66,26 @@ class FirebaseService {
       if (eq.exists) return sagaDoc.id;
     }
     return null;
+  }
+
+  /// Liste de tous les coachs disponibles (nullable filtrés)
+  Future<List<String>> getAllCoachs() async {
+    final equipes = await getAllEquipes();
+    return equipes
+        .map((e) => e.coach)
+        .where((c) => c != null && c.isNotEmpty)
+        .cast<String>()
+        .toList();
+  }
+
+  Future<List<Map<String, String>>> getAllMaillots() async {
+    final equipes = await getAllEquipes();
+    return equipes.map((e) {
+      return {
+        "team": e.name,
+        "maillot": e.maillot ?? "", // 🔥 valeur par défaut
+        "ecusson": e.image, // 🔥 valeur par défaut
+      };
+    }).toList();
   }
 }

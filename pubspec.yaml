@@ -39,6 +39,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/players/
-    - assets/images/teams/
     - assets/images/sagas/
+    - assets/images/coachs/
+    - assets/images/teams/
+    - assets/images/maillots/
     
