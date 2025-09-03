@@ -158,7 +158,7 @@ class _PlayerEncyclopediaPageState extends State<PlayerEncyclopediaPage> {
 
     return SideMenu(
       key: sideMenuKey,
-      background: AppColors.black,
+      background: AppColors.white,
       type: SideMenuType.shrinkNSlide,
       menu: MenuAside(
         context,

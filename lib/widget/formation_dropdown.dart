@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class FormationDropdown extends StatelessWidget {
@@ -14,16 +16,28 @@ class FormationDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 160, // 👈 largeur fixe pour éviter l'erreur
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      width: 180,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0A1F44), Color(0xFF005BBB)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // 👈 important !
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
@@ -37,9 +51,9 @@ class FormationDropdown extends StatelessWidget {
           const SizedBox(height: 6),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              isExpanded: true, // 👈 prend toute la largeur
+              isExpanded: true,
               value: selectedFormation,
-              dropdownColor: Colors.grey[900],
+              dropdownColor: const Color(0xFF0A1F44),
               style: const TextStyle(color: Colors.white, fontSize: 16),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
               items: formations.map((f) {
