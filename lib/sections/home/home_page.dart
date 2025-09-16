@@ -31,45 +31,6 @@ class _HomePageState extends State<HomePage> {
 
   final List<String> formations = ["4-3-3", "4-4-2", "3-5-2", "5-3-2"];
 
-  /// Positions sur le terrain
-  final Map<String, List<Offset>> formationPositions = {
-    "4-3-3": [
-      Offset(0.5, 0.875), // Gardien
-      Offset(0.2, 0.75), Offset(0.4, 0.75),
-      Offset(0.6, 0.75), Offset(0.8, 0.75), // Défense
-      Offset(0.2, 0.6), Offset(0.5, 0.6), Offset(0.8, 0.6), // Milieu
-      Offset(0.2, 0.45), Offset(0.5, 0.4), Offset(0.8, 0.45), // Attaque
-    ],
-    "4-4-2": [
-      Offset(0.5, 0.875), // Gardien
-      Offset(0.2, 0.75), Offset(0.4, 0.75),
-      Offset(0.6, 0.75), Offset(0.8, 0.75), // Défense
-      Offset(0.2, 0.6),
-      Offset(0.4, 0.6),
-      Offset(0.6, 0.6),
-      Offset(0.8, 0.6), // Milieu
-      Offset(0.4, 0.45), Offset(0.6, 0.45), // Attaque
-    ],
-    "3-5-2": [
-      Offset(0.5, 0.875), // Gardien
-      Offset(0.3, 0.75), Offset(0.5, 0.75), Offset(0.7, 0.75), //Défense
-      Offset(0.15, 0.6),
-      Offset(0.4, 0.6),
-      Offset(0.6, 0.6),
-      Offset(0.85, 0.6), // Milieu
-      Offset(0.5, 0.5),
-      Offset(0.4, 0.4), Offset(0.6, 0.4), // Attaque
-    ],
-    "5-3-2": [
-      Offset(0.5, 0.875), // Gardien
-      Offset(0.15, 0.7),
-      Offset(0.3, 0.75), Offset(0.5, 0.75),
-      Offset(0.7, 0.75), Offset(0.85, 0.7), // Défense
-      Offset(0.2, 0.6), Offset(0.5, 0.6), Offset(0.8, 0.6), // Milieu
-      Offset(0.4, 0.45), Offset(0.6, 0.45), // Attaque
-    ],
-  };
-
   @override
   Widget build(BuildContext context) {
     final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
@@ -318,17 +279,21 @@ class _HomePageState extends State<HomePage> {
                           onTap: openCoachSelector,
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              border: Border.all(color: Colors.black12),
-                            ),
                             child: Column(
                               children: [
-                                Icon(
-                                  Icons.person,
-                                  size: 28,
-                                  color: Colors.black87,
-                                ),
+                                if (selectedCoach != null &&
+                                    selectedCoach!.isNotEmpty)
+                                  Image.asset(
+                                    selectedCoach!,
+                                    height: 56,
+                                    fit: BoxFit.contain,
+                                  )
+                                else
+                                  const Icon(
+                                    Icons.person,
+                                    size: 38,
+                                    color: Colors.black87,
+                                  ),
                               ],
                             ),
                           ),
@@ -342,23 +307,19 @@ class _HomePageState extends State<HomePage> {
                           onTap: openMaillotSelector,
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              border: Border.all(color: Colors.black12),
-                            ),
                             child: Column(
                               children: [
                                 if (selectedMaillot != null &&
                                     selectedMaillot!.isNotEmpty)
                                   Image.asset(
                                     selectedMaillot!,
-                                    height: 36,
+                                    height: 56,
                                     fit: BoxFit.contain,
                                   )
                                 else
                                   const Icon(
                                     Icons.checkroom,
-                                    size: 28,
+                                    size: 38,
                                     color: Colors.black87,
                                   ),
                               ],
@@ -374,23 +335,19 @@ class _HomePageState extends State<HomePage> {
                           onTap: openClubSelector,
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              border: Border.all(color: Colors.black12),
-                            ),
                             child: Column(
                               children: [
                                 if (selectedEcusson != null &&
                                     selectedEcusson!.isNotEmpty)
                                   Image.asset(
                                     selectedEcusson!,
-                                    height: 36,
+                                    height: 56,
                                     fit: BoxFit.contain,
                                   )
                                 else
                                   const Icon(
                                     Icons.shield,
-                                    size: 28,
+                                    size: 38,
                                     color: Colors.black87,
                                   ),
                               ],

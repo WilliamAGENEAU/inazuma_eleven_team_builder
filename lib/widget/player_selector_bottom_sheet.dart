@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:inazuma_eleven_team_builder/values/values.dart';
 import '../models/saga.dart';
 import '../models/equipe.dart';
 import '../models/joueur.dart';
@@ -108,7 +109,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
               const SizedBox(height: 6),
               Text(
                 equipe.name,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ],
           ),
@@ -123,18 +124,39 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
             widget.onPlayerSelected(joueur);
             Navigator.pop(context);
           },
-          child: ClipPath(
-            clipper: HexagonClipper(),
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFD700), Color(0xFF1FAF68)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipPath(
+                clipper: HexagonClipper(),
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.blueSky, Color(0xFF1FAF68)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Image.asset(joueur.icon, fit: BoxFit.cover),
                 ),
               ),
-              child: Image.asset(joueur.icon, fit: BoxFit.cover),
-            ),
+              const SizedBox(height: 4),
+              Flexible(
+                child: Text(
+                  joueur.name,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
         );
       }, crossAxisCount: 4);

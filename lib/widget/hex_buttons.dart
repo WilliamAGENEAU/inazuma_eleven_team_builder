@@ -17,7 +17,7 @@ class HexButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = isRemplacant ? 65 : 75; // 👈 taille réduite remplaçants
+    final double size = isRemplacant ? 65 : 75;
 
     return GestureDetector(
       onTap: onTap ?? () {},
@@ -29,8 +29,8 @@ class HexButton extends StatelessWidget {
             child: Container(
               width: size,
               height: size,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: [AppColors.blueSky, Color(0xFF1FAF68)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -41,15 +41,34 @@ class HexButton extends StatelessWidget {
                   : Image.asset(joueur!.icon, fit: BoxFit.cover),
             ),
           ),
+
           if (joueur != null) ...[
-            Text(
-              joueur!.name,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(height: 4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (joueur!.equipeEcusson != null &&
+                    joueur!.equipeEcusson!.isNotEmpty) ...[
+                  Image.asset(
+                    joueur!.equipeEcusson!,
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Flexible(
+                  child: Text(
+                    joueur!.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ],
         ],

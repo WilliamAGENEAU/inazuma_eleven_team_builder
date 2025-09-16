@@ -88,4 +88,17 @@ class FirebaseService {
       };
     }).toList();
   }
+
+  Future<String?> getEcussonByEquipeId(String equipeId, String sagaId) async {
+    final doc = await _firestore
+        .collection('sagas')
+        .doc(sagaId)
+        .collection('equipes')
+        .doc(equipeId)
+        .get();
+
+    if (!doc.exists) return null;
+    final data = doc.data();
+    return data?['image']; // ⚽ champ ecusson
+  }
 }
