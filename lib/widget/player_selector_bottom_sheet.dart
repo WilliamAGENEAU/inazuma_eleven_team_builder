@@ -62,7 +62,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
-      height: MediaQuery.of(context).size.height * 0.8,
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
         color: Color(0xFF0A1F44),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -78,13 +78,25 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
         final saga = sagas[index];
         return GestureDetector(
           onTap: () => _loadEquipes(saga),
-          child: _styledCard(
-            child: Image.asset(saga.image, fit: BoxFit.contain),
+          child: Column(
+            children: [
+              Expanded(
+                child: _styledCard(
+                  child: Image.asset(saga.image, fit: BoxFit.contain),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                saga.name,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         );
       });
     } else if (selectedEquipe == null) {
-      /// Étape 2 : choisir l’équipe
+      /// Étape 2 : choisir l’équipe (même affichage que saga)
       return _buildGrid(equipes.length, (index) {
         final equipe = equipes[index];
         return GestureDetector(
@@ -92,74 +104,71 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
           child: Column(
             children: [
               Expanded(
-                child: ClipPath(
-                  clipper: HexagonClipper(),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF005BBB), Color(0xFF1FAF68)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Image.asset(equipe.image, fit: BoxFit.contain),
-                  ),
+                child: _styledCard(
+                  child: Image.asset(equipe.image, fit: BoxFit.contain),
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 equipe.name,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         );
       });
     } else {
-      /// Étape 3 : choisir le joueur
-      return _buildGrid(joueurs.length, (index) {
-        final joueur = joueurs[index];
-        return GestureDetector(
-          onTap: () {
-            widget.onPlayerSelected(joueur);
-            Navigator.pop(context);
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipPath(
-                clipper: HexagonClipper(),
-                child: Container(
-                  width: 70,
-                  height: 70,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.blueSky, Color(0xFF1FAF68)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+      /// Étape 3 : choisir le joueur (plein écran, bien lisible)
+      return GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3, // 3 colonnes → 11 joueurs prennent tout l’espace
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 0.85, // agrandit les cases verticalement
+        ),
+        itemCount: joueurs.length,
+        itemBuilder: (context, index) {
+          final joueur = joueurs[index];
+          return GestureDetector(
+            onTap: () {
+              widget.onPlayerSelected(joueur);
+              Navigator.pop(context);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipPath(
+                  clipper: HexagonClipper(),
+                  child: Container(
+                    width: 95,
+                    height: 95,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.blueSky, Color(0xFF1FAF68)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
+                    child: Image.asset(joueur.icon, fit: BoxFit.cover),
                   ),
-                  child: Image.asset(joueur.icon, fit: BoxFit.cover),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: Text(
+                const SizedBox(height: 8),
+                Text(
                   joueur.name,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
-                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                 ),
-              ),
-            ],
-          ),
-        );
-      }, crossAxisCount: 4);
+              ],
+            ),
+          );
+        },
+      );
     }
   }
 
@@ -173,6 +182,7 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
         crossAxisCount: crossAxisCount,
         mainAxisSpacing: 14,
         crossAxisSpacing: 14,
+        childAspectRatio: 0.9,
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) => AnimatedScale(

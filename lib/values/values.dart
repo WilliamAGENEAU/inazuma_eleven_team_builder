@@ -18,36 +18,34 @@ part 'strings.dart';
 final Map<String, List<Offset>> formationPositions = {
   "4-3-3": [
     Offset(0.5, 0.875), // Gardien
-    Offset(0.2, 0.75), Offset(0.4, 0.75),
-    Offset(0.6, 0.75), Offset(0.8, 0.75), // Défense
+    Offset(0.1, 0.75), Offset(0.35, 0.75),
+    Offset(0.6, 0.75), Offset(0.85, 0.75), // Défense
     Offset(0.2, 0.6), Offset(0.5, 0.6), Offset(0.8, 0.6), // Milieu
     Offset(0.2, 0.45), Offset(0.5, 0.4), Offset(0.8, 0.45), // Attaque
   ],
   "4-4-2": [
     Offset(0.5, 0.875),
-    Offset(0.2, 0.75),
-    Offset(0.4, 0.75),
-    Offset(0.6, 0.75),
-    Offset(0.8, 0.75),
-    Offset(0.2, 0.6),
-    Offset(0.4, 0.6),
+    Offset(0.1, 0.75), Offset(0.35, 0.75),
+    Offset(0.6, 0.75), Offset(0.85, 0.75), // Défense
+    Offset(0.1, 0.6),
+    Offset(0.35, 0.6),
     Offset(0.6, 0.6),
-    Offset(0.8, 0.6),
-    Offset(0.4, 0.45),
-    Offset(0.6, 0.45),
+    Offset(0.85, 0.6),
+    Offset(0.35, 0.45),
+    Offset(0.65, 0.45),
   ],
   "3-5-2": [
     Offset(0.5, 0.875),
-    Offset(0.3, 0.75),
+    Offset(0.2, 0.75),
     Offset(0.5, 0.75),
-    Offset(0.7, 0.75),
-    Offset(0.15, 0.6),
-    Offset(0.4, 0.6),
+    Offset(0.8, 0.75),
+    Offset(0.1, 0.6),
+    Offset(0.35, 0.6),
     Offset(0.6, 0.6),
     Offset(0.85, 0.6),
-    Offset(0.5, 0.5),
-    Offset(0.4, 0.4),
-    Offset(0.6, 0.4),
+    Offset(0.48, 0.5),
+    Offset(0.3, 0.4),
+    Offset(0.7, 0.4),
   ],
   "5-3-2": [
     Offset(0.5, 0.875),
