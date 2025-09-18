@@ -94,6 +94,7 @@ class TeamHeader extends StatelessWidget {
                     // Formation
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true, // ⬅️ super important !
                         decoration: const InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -101,7 +102,7 @@ class TeamHeader extends StatelessWidget {
                             borderSide: BorderSide.none,
                           ),
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 4,
                             vertical: 8,
                           ),
                         ),
@@ -112,6 +113,8 @@ class TeamHeader extends StatelessWidget {
                                 value: f,
                                 child: Text(
                                   f,
+                                  overflow: TextOverflow
+                                      .ellipsis, // ⬅️ évite le dépassement
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ),

@@ -57,6 +57,20 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
     });
   }
 
+  void _goBack() {
+    setState(() {
+      if (selectedEquipe != null) {
+        // Retour de joueur -> équipe
+        selectedEquipe = null;
+        joueurs = [];
+      } else if (selectedSaga != null) {
+        // Retour de équipe -> saga
+        selectedSaga = null;
+        equipes = [];
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -67,7 +81,38 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
         color: Color(0xFF0A1F44),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Padding(padding: const EdgeInsets.all(16), child: _buildContent()),
+      child: Column(
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildContent(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    final showBack =
+        selectedSaga != null ||
+        selectedEquipe != null; // afficher si pas au début
+
+    return Row(
+      children: [
+        if (showBack)
+          IconButton(
+            onPressed: _goBack,
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+          ),
+
+        const Spacer(),
+        // Espace réservé pour équilibrer avec la flèche
+        if (showBack) const SizedBox(width: 48),
+      ],
     );
   }
 
@@ -86,17 +131,12 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                saga.name,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-                overflow: TextOverflow.ellipsis,
-              ),
             ],
           ),
         );
       });
     } else if (selectedEquipe == null) {
-      /// Étape 2 : choisir l’équipe (même affichage que saga)
+      /// Étape 2 : choisir l’équipe
       return _buildGrid(equipes.length, (index) {
         final equipe = equipes[index];
         return GestureDetector(
@@ -119,13 +159,13 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
         );
       });
     } else {
-      /// Étape 3 : choisir le joueur (plein écran, bien lisible)
+      /// Étape 3 : choisir le joueur
       return GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // 3 colonnes → 11 joueurs prennent tout l’espace
+          crossAxisCount: 3,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.85, // agrandit les cases verticalement
+          childAspectRatio: 0.85,
         ),
         itemCount: joueurs.length,
         itemBuilder: (context, index) {

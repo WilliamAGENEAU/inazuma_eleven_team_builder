@@ -30,7 +30,13 @@ class _HomePageState extends State<HomePage> {
   List<Joueur?> hexPlayers = List.filled(11, null);
   List<Joueur?> remplacants = List.filled(5, null);
 
-  final List<String> formations = ["4-3-3", "4-4-2", "3-5-2", "5-3-2"];
+  final List<String> formations = [
+    "4-3-3",
+    "4-4-2",
+    "3-5-2",
+    "3-4-3",
+    "4-2-3-1",
+  ];
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
 
   // === Actions ===
