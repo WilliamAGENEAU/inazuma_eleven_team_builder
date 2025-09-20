@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
 import 'package:inazuma_eleven_team_builder/widget/hexagon_clipper.dart';
+import 'package:inazuma_eleven_team_builder/widget/poste_badge.dart';
 import '../models/joueur.dart';
 
 class HexButton extends StatelessWidget {
@@ -26,6 +27,9 @@ class HexButton extends StatelessWidget {
     required this.index,
     this.onPlayerMoved,
   });
+  String getFirstName(String fullName) {
+    return fullName.split(" ").first;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +38,9 @@ class HexButton extends StatelessWidget {
     final hexContent = ClipPath(
       clipper: HexagonClipper(),
       child: Container(
-        width: size,
-        height: size,
+        width: size, // toujours la même largeur
+        height: size, // toujours la même hauteur
+        alignment: Alignment.center, // centre l’enfant
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [AppColors.blueSky, Color(0xFF1FAF68)],
@@ -45,7 +50,12 @@ class HexButton extends StatelessWidget {
         ),
         child: joueur == null
             ? const Icon(Icons.add, color: Colors.white, size: 22)
-            : Image.asset(joueur!.icon, fit: BoxFit.cover),
+            : Image.asset(
+                joueur!.icon,
+                fit: BoxFit.cover,
+                width: size, // on force à rester dans la boîte
+                height: size,
+              ),
       ),
     );
 
@@ -90,14 +100,25 @@ class HexButton extends StatelessWidget {
                     ),
             ),
             if (joueur != null)
-              Text(
-                joueur!.name,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-                overflow: TextOverflow.ellipsis,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PosteText(poste: joueur!.poste),
+                  const SizedBox(width: 6),
+                  Text(
+                    getFirstName(joueur!.name),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(width: 6),
+                  if (joueur!.equipeEcusson != null)
+                    Image.asset(joueur!.equipeEcusson!, height: 20),
+                ],
               ),
           ],
         );

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
+import 'package:inazuma_eleven_team_builder/widget/poste_badge.dart';
 import '../models/saga.dart';
 import '../models/equipe.dart';
 import '../models/joueur.dart';
@@ -49,8 +50,25 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
     });
   }
 
+  String getFirstName(String fullName) {
+    return fullName.split(" ").first;
+  }
+
   void _loadJoueurs(Equipe equipe) async {
     final data = await _firebaseService.getJoueurs(selectedSaga!.id, equipe.id);
+
+    // ordre des postes voulu
+    final order = {"GK": 0, "DF": 1, "MF": 2, "FW": 3};
+
+    data.sort((a, b) {
+      final aOrder = order[a.poste] ?? 99; // si poste manquant → fin
+      final bOrder = order[b.poste] ?? 99;
+      if (aOrder != bOrder) {
+        return aOrder.compareTo(bOrder);
+      }
+      return a.name.compareTo(b.name); // si même poste → tri alphabétique
+    });
+
     setState(() {
       joueurs = data;
       selectedEquipe = equipe;
@@ -194,15 +212,22 @@ class _PlayerSelectorBottomSheetState extends State<PlayerSelectorBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  joueur.name,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PosteText(poste: joueur.poste),
+                    const SizedBox(width: 6),
+                    Text(
+                      getFirstName(joueur.name),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ],
             ),
