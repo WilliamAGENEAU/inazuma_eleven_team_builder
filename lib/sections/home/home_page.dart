@@ -8,6 +8,7 @@ import 'package:inazuma_eleven_team_builder/widget/coach_selector_bottom_sheet.d
 import 'package:inazuma_eleven_team_builder/widget/hex_buttons.dart';
 import 'package:inazuma_eleven_team_builder/widget/maillot_selector_bottom_sheet.dart';
 import 'package:inazuma_eleven_team_builder/widget/menu_aside.dart';
+import 'package:inazuma_eleven_team_builder/widget/player_detail_zone.dart';
 import 'package:inazuma_eleven_team_builder/widget/player_selector_bottom_sheet.dart';
 import 'package:inazuma_eleven_team_builder/widget/team_header.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
@@ -161,6 +162,11 @@ class _HomePageState extends State<HomePage> {
                       opacity: 0.2,
                       child: Image.asset(ImagePath.FIELD, fit: BoxFit.cover),
                     ),
+                  ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: PlayerDetailZone(width: 100, height: 100),
                   ),
 
                   /// Joueurs titulaires
