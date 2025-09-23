@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:inazuma_eleven_team_builder/models/joueur.dart';
+import 'package:inazuma_eleven_team_builder/services/local_storage_service.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
 import 'package:inazuma_eleven_team_builder/widget/club_selector_bottom_sheet.dart';
 import 'package:inazuma_eleven_team_builder/widget/coach_selector_bottom_sheet.dart';
@@ -40,6 +41,44 @@ class _HomePageState extends State<HomePage> {
   ];
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
 
+  @override
+  void initState() {
+    super.initState();
+    _restoreState();
+  }
+
+  Future<void> _restoreState() async {
+    final savedPlayers = await LocalStorageService.loadPlayers();
+    final savedCoach = await LocalStorageService.loadCoach();
+    final savedMaillot = await LocalStorageService.loadMaillot();
+    final savedEcusson = await LocalStorageService.loadEcusson();
+    final savedFormation = await LocalStorageService.loadFormation();
+
+    setState(() {
+      if (savedPlayers.containsKey("terrain")) {
+        hexPlayers = List.generate(11, (i) {
+          final data = savedPlayers["terrain"]["$i"];
+          return data != null
+              ? Joueur.fromFirestore(data, data["id"], [])
+              : null;
+        });
+      }
+      if (savedPlayers.containsKey("remplacants")) {
+        remplacants = List.generate(5, (i) {
+          final data = savedPlayers["remplacants"]["$i"];
+          return data != null
+              ? Joueur.fromFirestore(data, data["id"], [])
+              : null;
+        });
+      }
+
+      selectedCoach = savedCoach;
+      selectedMaillot = savedMaillot;
+      selectedEcusson = savedEcusson;
+      if (savedFormation != null) selectedFormation = savedFormation;
+    });
+  }
+
   // === Actions ===
   void openCoachSelector() {
     showModalBottomSheet(
@@ -47,7 +86,8 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => CoachSelectorBottomSheet(
-        onCoachSelected: (coach) {
+        onCoachSelected: (coach) async {
+          await LocalStorageService.saveCoach(coach);
           setState(() => selectedCoach = coach);
         },
       ),
@@ -60,7 +100,8 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => MaillotSelectorBottomSheet(
-        onMaillotSelected: (maillot) {
+        onMaillotSelected: (maillot) async {
+          await LocalStorageService.saveMaillot(maillot);
           setState(() => selectedMaillot = maillot);
         },
       ),
@@ -73,7 +114,8 @@ class _HomePageState extends State<HomePage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => ClubSelectorBottomSheet(
-        onEcussonSelected: (club) {
+        onEcussonSelected: (club) async {
+          await LocalStorageService.saveEcusson(club);
           setState(() => selectedEcusson = club);
         },
       ),
@@ -85,7 +127,8 @@ class _HomePageState extends State<HomePage> {
     state.isOpened ? state.closeSideMenu() : state.openSideMenu();
   }
 
-  void resetTeam() {
+  void resetTeam() async {
+    await LocalStorageService.resetAll();
     setState(() {
       hexPlayers = List.filled(11, null);
       remplacants = List.filled(5, null);
@@ -95,12 +138,44 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void movePlayer({
-    required int fromIndex,
-    required int toIndex,
-    required bool fromIsRemplacant,
-    required bool toIsRemplacant,
-  }) {
+  Future<void> _savePlayers() async {
+    final playersData = {
+      "terrain": {
+        for (int i = 0; i < hexPlayers.length; i++)
+          "$i": hexPlayers[i] != null
+              ? {
+                  "id": hexPlayers[i]!.id,
+                  "name": hexPlayers[i]!.name,
+                  "poste": hexPlayers[i]!.poste,
+                  "icon": hexPlayers[i]!.icon,
+                  "type": hexPlayers[i]!.type,
+                  "ecusson": hexPlayers[i]!.equipeEcusson,
+                }
+              : null,
+      },
+      "remplacants": {
+        for (int i = 0; i < remplacants.length; i++)
+          "$i": remplacants[i] != null
+              ? {
+                  "id": remplacants[i]!.id,
+                  "name": remplacants[i]!.name,
+                  "poste": remplacants[i]!.poste,
+                  "icon": remplacants[i]!.icon,
+                  "type": remplacants[i]!.type,
+                  "ecusson": remplacants[i]!.equipeEcusson,
+                }
+              : null,
+      },
+    };
+    await LocalStorageService.savePlayers(playersData);
+  }
+
+  void movePlayer(
+    int fromIndex,
+    int toIndex,
+    bool fromIsRemplacant,
+    bool toIsRemplacant,
+  ) {
     setState(() {
       if (fromIsRemplacant && toIsRemplacant) {
         final temp = remplacants[fromIndex];
@@ -136,27 +211,28 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         body: CustomScrollView(
           slivers: [
-            // === HEADER VICTORY ROAD ===
+            // === HEADER ===
             TeamHeader(
               selectedFormation: selectedFormation,
               selectedCoach: selectedCoach,
               selectedMaillot: selectedMaillot,
               selectedEcusson: selectedEcusson,
               formations: formations,
-              onFormationChanged: (f) => setState(() => selectedFormation = f),
+              onFormationChanged: (f) async {
+                await LocalStorageService.saveFormation(f);
+                setState(() => selectedFormation = f);
+              },
               onOpenCoachSelector: openCoachSelector,
               onOpenMaillotSelector: openMaillotSelector,
               onOpenClubSelector: openClubSelector,
               onToggleMenu: toggleMenu,
               onResetTeam: resetTeam,
             ),
-
             // === TERRAIN + JOUEURS ===
             SliverFillRemaining(
               hasScrollBody: false,
               child: Stack(
                 children: [
-                  /// Fond terrain
                   Positioned.fill(
                     child: Opacity(
                       opacity: 0.2,
@@ -191,26 +267,14 @@ class _HomePageState extends State<HomePage> {
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
                                 builder: (_) => PlayerSelectorBottomSheet(
-                                  onPlayerSelected: (joueur) {
+                                  onPlayerSelected: (joueur) async {
                                     setState(() => hexPlayers[index] = joueur);
+                                    await _savePlayers();
                                   },
                                 ),
                               );
                             },
-                            onPlayerMoved:
-                                (
-                                  fromIndex,
-                                  toIndex,
-                                  fromIsRemplacant,
-                                  toIsRemplacant,
-                                ) {
-                                  movePlayer(
-                                    fromIndex: fromIndex,
-                                    toIndex: toIndex,
-                                    fromIsRemplacant: fromIsRemplacant,
-                                    toIsRemplacant: toIsRemplacant,
-                                  );
-                                },
+                            onPlayerMoved: movePlayer,
                           ),
                         ),
                       );
@@ -249,26 +313,14 @@ class _HomePageState extends State<HomePage> {
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
                                 builder: (_) => PlayerSelectorBottomSheet(
-                                  onPlayerSelected: (joueur) {
+                                  onPlayerSelected: (joueur) async {
                                     setState(() => remplacants[index] = joueur);
+                                    await _savePlayers();
                                   },
                                 ),
                               );
                             },
-                            onPlayerMoved:
-                                (
-                                  fromIndex,
-                                  toIndex,
-                                  fromIsRemplacant,
-                                  toIsRemplacant,
-                                ) {
-                                  movePlayer(
-                                    fromIndex: fromIndex,
-                                    toIndex: toIndex,
-                                    fromIsRemplacant: fromIsRemplacant,
-                                    toIsRemplacant: toIsRemplacant,
-                                  );
-                                },
+                            onPlayerMoved: movePlayer,
                           );
                         }),
                       ),

@@ -2,9 +2,12 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:inazuma_eleven_team_builder/models/techniques.dart';
 import 'package:inazuma_eleven_team_builder/values/values.dart';
+import 'package:inazuma_eleven_team_builder/widget/video_player_widget.dart';
 import '../models/joueur.dart';
 import 'poste_badge.dart';
+import '../services/local_storage_service.dart'; // NEW
 
 class PlayerDetailDialog extends StatefulWidget {
   final Joueur joueur;
@@ -16,48 +19,135 @@ class PlayerDetailDialog extends StatefulWidget {
 }
 
 class _PlayerDetailDialogState extends State<PlayerDetailDialog> {
-  // 6 emplacements pour techniques (front only)
-  final List<String?> techniques = List.generate(6, (_) => null);
+  List<Technique?> techniquesSlots = List.generate(6, (_) => null);
 
-  void _editTechnique(int slot) async {
-    final TextEditingController c = TextEditingController(
-      text: techniques[slot] ?? '',
-    );
-    final result = await showDialog<String?>(
+  @override
+  void initState() {
+    super.initState();
+    _loadTechniques();
+  }
+
+  Future<void> _loadTechniques() async {
+    final saved = await LocalStorageService.loadTechniques(widget.joueur.id);
+    setState(() => techniquesSlots = saved);
+  }
+
+  Future<void> _saveTechniques() async {
+    await LocalStorageService.saveTechniques(widget.joueur.id, techniquesSlots);
+  }
+
+  void _selectTechnique(int slot, List<Technique> techniques) async {
+    final selected = await showDialog<Technique>(
       context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Éditer la technique'),
-          content: TextField(
-            controller: c,
-            decoration: const InputDecoration(hintText: 'Nom de la technique'),
-            autofocus: true,
+      builder: (ctx) => Dialog(
+        child: GridView.builder(
+          padding: const EdgeInsets.all(12),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(null),
-              child: const Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(
-                ctx,
-              ).pop(c.text.trim().isEmpty ? null : c.text.trim()),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+          itemCount: techniques.length,
+          itemBuilder: (_, i) {
+            final tech = techniques[i];
+            return GestureDetector(
+              onTap: () => Navigator.of(ctx).pop(tech),
+              child: Card(
+                elevation: 3,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 100,
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: YoutubeVideoPlayer(url: tech.url),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      tech.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      tech.poste,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
 
-    if (result != null) {
-      setState(() => techniques[slot] = result);
+    if (selected != null) {
+      setState(() {
+        techniquesSlots[slot] = selected;
+      });
+      _saveTechniques(); // Sauvegarde automatique
     }
+  }
+
+  Widget _buildTechniqueSlot(int index, Joueur joueur) {
+    final selected = techniquesSlots[index];
+    Color bg;
+    switch (selected?.poste) {
+      case 'GK':
+        bg = Colors.yellow.shade200;
+        break;
+      case 'DF':
+        bg = Colors.green.shade200;
+        break;
+      case 'ATT':
+        bg = Colors.blue.shade200;
+        break;
+      case 'TIR':
+        bg = Colors.red.shade200;
+        break;
+      default:
+        bg = Colors.grey.shade200;
+    }
+
+    return GestureDetector(
+      onTap: () => _selectTechnique(index, joueur.techniques),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black12),
+        ),
+        child: Row(
+          children: [
+            Text(
+              ' ${index + 1}.',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                selected == null
+                    ? 'Aucune technique assignée'
+                    : '${selected.poste} - ${selected.name}',
+                style: TextStyle(
+                  color: selected == null ? Colors.black38 : Colors.black87,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(Icons.edit, color: Colors.black45),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final j = widget.joueur;
-
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -85,7 +175,7 @@ class _PlayerDetailDialogState extends State<PlayerDetailDialog> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // header: icon + name + ecusson + poste
+                  // HEADER joueur
                   Row(
                     children: [
                       ClipRRect(
@@ -120,11 +210,6 @@ class _PlayerDetailDialogState extends State<PlayerDetailDialog> {
                                     width: 36,
                                     height: 36,
                                   ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Poste: ${j.poste}',
-                                  style: const TextStyle(color: Colors.black54),
-                                ),
                               ],
                             ),
                           ],
@@ -136,27 +221,9 @@ class _PlayerDetailDialogState extends State<PlayerDetailDialog> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 14),
 
-                  // big area (desc placeholder)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.grey300,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text(
-                      'Description / bio du joueur (placeholder). '
-                      'Ici on affichera stats, types, etc. (plus tard).',
-                      style: TextStyle(color: Colors.black87),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // Techniques list (6 slots)
+                  // TECHNIQUES
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -165,78 +232,15 @@ class _PlayerDetailDialogState extends State<PlayerDetailDialog> {
                     ),
                   ),
                   const SizedBox(height: 8),
-
                   Flexible(
                     child: ListView.separated(
                       shrinkWrap: true,
-                      itemCount: techniques.length,
+                      itemCount: techniquesSlots.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (context, i) {
-                        final t = techniques[i];
-                        return GestureDetector(
-                          onTap: () => _editTechnique(i),
-                          child: Container(
-                            height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: t == null
-                                  ? Colors.white
-                                  : AppColors.blueSky.withOpacity(0.35),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black12),
-                            ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  ' ${i + 1}.',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    t ?? 'Aucune technique assignée',
-                                    style: TextStyle(
-                                      color: t == null
-                                          ? Colors.black38
-                                          : Colors.black87,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Icon(Icons.edit, color: Colors.black45),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                      itemBuilder: (context, i) => _buildTechniqueSlot(i, j),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
-                  // actions
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Fermer'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          // pour l'instant on ferme — plus tard on peut renvoyer les techniques
-                          Navigator.of(context).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.blueSky,
-                        ),
-                        child: const Text('Valider'),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

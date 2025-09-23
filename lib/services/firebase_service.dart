@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/saga.dart';
 import '../models/equipe.dart';
 import '../models/joueur.dart';
+import '../models/techniques.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // ---------------- SAGAS ----------------
   Future<List<Saga>> getSagas() async {
     final snapshot = await _firestore.collection('sagas').get();
     return snapshot.docs
@@ -13,6 +15,7 @@ class FirebaseService {
         .toList();
   }
 
+  // ---------------- EQUIPES ----------------
   Future<List<Equipe>> getEquipes(String sagaId) async {
     final snapshot = await _firestore
         .collection('sagas')
@@ -25,20 +28,6 @@ class FirebaseService {
     }).toList();
   }
 
-  Future<List<Joueur>> getJoueurs(String sagaId, String equipeId) async {
-    final snapshot = await _firestore
-        .collection('sagas')
-        .doc(sagaId)
-        .collection('equipes')
-        .doc(equipeId)
-        .collection('joueurs')
-        .get();
-    return snapshot.docs
-        .map((d) => Joueur.fromFirestore(d.data(), d.id))
-        .toList();
-  }
-
-  /// Récupère toutes les équipes de toutes les sagas (à plat)
   Future<List<Equipe>> getAllEquipes() async {
     final sagasSnap = await _firestore.collection('sagas').get();
     final List<Equipe> out = [];
@@ -53,7 +42,42 @@ class FirebaseService {
     return out;
   }
 
-  /// Permet de retrouver la saga d’une équipe (utile quand on filtre “par équipe”)
+  // ---------------- JOUEURS ----------------
+  Future<List<Joueur>> getJoueurs(String sagaId, String equipeId) async {
+    final snapshot = await _firestore
+        .collection('sagas')
+        .doc(sagaId)
+        .collection('equipes')
+        .doc(equipeId)
+        .collection('joueurs')
+        .get();
+
+    // ⚡ On lance toutes les requêtes en parallèle
+    final futures = snapshot.docs.map((doc) async {
+      final data = doc.data();
+
+      final techSnap = await _firestore
+          .collection('sagas')
+          .doc(sagaId)
+          .collection('equipes')
+          .doc(equipeId)
+          .collection('joueurs')
+          .doc(doc.id)
+          .collection('techniques')
+          .get();
+
+      final techniques = techSnap.docs
+          .map((t) => Technique.fromFirestore(t.data(), t.id))
+          .toList();
+
+      return Joueur.fromFirestore(data, doc.id, techniques);
+    }).toList();
+
+    // ⚡ Attend que toutes les requêtes soient finies
+    return await Future.wait(futures);
+  }
+
+  // ---------------- AUTRES ----------------
   Future<String?> getSagaIdByEquipeId(String equipeId) async {
     final sagasSnap = await _firestore.collection('sagas').get();
     for (final sagaDoc in sagasSnap.docs) {
@@ -68,7 +92,6 @@ class FirebaseService {
     return null;
   }
 
-  /// Liste de tous les coachs disponibles (nullable filtrés)
   Future<List<String>> getAllCoachs() async {
     final equipes = await getAllEquipes();
     return equipes
@@ -81,11 +104,7 @@ class FirebaseService {
   Future<List<Map<String, String>>> getAllMaillots() async {
     final equipes = await getAllEquipes();
     return equipes.map((e) {
-      return {
-        "team": e.name,
-        "maillot": e.maillot ?? "", // 🔥 valeur par défaut
-        "ecusson": e.image, // 🔥 valeur par défaut
-      };
+      return {"team": e.name, "maillot": e.maillot ?? "", "ecusson": e.image};
     }).toList();
   }
 
@@ -99,6 +118,6 @@ class FirebaseService {
 
     if (!doc.exists) return null;
     final data = doc.data();
-    return data?['image']; // ⚽ champ ecusson
+    return data?['image'];
   }
 }
