@@ -2,6 +2,7 @@
 
 Construis ton équipe de rêve avec tes joueurs préférés d’**Inazuma Eleven** !  
 Cette application Flutter te permet de gérer tes compositions, sélectionner les techniques de chaque joueur et personnaliser ton équipe comme dans le jeu.  
+Elle est développé en partenariat avec inazuma-eleven.fr
 
 ---
 
